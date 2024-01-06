@@ -31,12 +31,19 @@ app.get('/api/allCoiffeurs', (req, res) => {
     let query = 'SELECT nom, numero, voie, code_postal, ville, latitude, longitude FROM coiffeurs';
 
     if (searchTerm) {
-        query += ' WHERE LOWER(nom) LIKE ?'; // Ajouter une condition de recherche si un terme est fourni
+        query += ' WHERE';
+        query += ' LOWER(nom) LIKE ?';
+        query += ' OR LOWER(numero) LIKE ?';
+        query += ' OR LOWER(voie) LIKE ?';
+        query += ' OR LOWER(code_postal) LIKE ?';
+        query += ' OR LOWER(ville) LIKE ?';
+        query += ' OR LOWER(latitude) LIKE ?';
+        query += ' OR LOWER(longitude) LIKE ?';
     }
 
     db.all(
         query,
-        searchTerm ? [`%${searchTerm}%`] : [], // Si un terme est fourni, ajouter-le en tant que paramètre de recherche
+        searchTerm ? Array(7).fill(`%${searchTerm}%`) : [], // Si un terme est fourni, ajouter-le en tant que paramètre de recherche pour chaque colonne
         (err, rows) => {
             if (err) {
                 console.error(err.message);
@@ -46,6 +53,7 @@ app.get('/api/allCoiffeurs', (req, res) => {
             }
         }
     );
+
 
     db.close((err) => {
         if (err) {
