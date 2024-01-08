@@ -23,7 +23,7 @@ function showSearchResultsCount() {
 
 // Déclaration des fonctions
 function openLoginPage() {
-    window.location.href = 'http://localhost:3000/login.html';
+    window.location.href = 'registered.html';
 }
 
 function checkLoginStatus() {

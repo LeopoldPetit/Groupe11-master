@@ -142,6 +142,16 @@ app.get('/login.html', (req, res) => {
         }
     });
 });
+app.get('/registered.html', (req, res) => {
+    fs.readFile(path.join(__dirname, '..', 'public', 'registered.html'), 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Erreur lors de la lecture de la page de connexion');
+        } else {
+            res.send(data);
+        }
+    });
+});
 
 // Route racine pour la page principale
 app.get('/', (req, res) => {
@@ -178,6 +188,44 @@ app.post('/api/login', (req, res) => {
         }
     });
 });
+
+app.post('/api/registered', (req, res) => {
+    const { username, password } = req.body;
+
+    fs.readFile(usersFilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Erreur de lecture du fichier des utilisateurs' });
+            return;
+        }
+
+        try {
+            const usersData = JSON.parse(data);
+            const users = usersData.users;
+
+            // Création du nouvel utilisateur
+            const newUser = { username, password };
+
+            // Ajout du nouvel utilisateur à la liste des utilisateurs
+            users.push(newUser);
+
+            // Écriture de la liste mise à jour dans le fichier JSON
+            fs.writeFile(usersFilePath, JSON.stringify(usersData, null, 2), (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({ error: 'Erreur lors de l\'écriture dans le fichier des utilisateurs' });
+                    return;
+                }
+
+                res.status(200).json({ message: 'Utilisateur ajouté avec succès' });
+            });
+        } catch (parseError) {
+            console.error(parseError);
+            res.status(500).json({ error: 'Erreur de parsing du fichier des utilisateurs' });
+        }
+    });
+});
+
 
 // Route pour vérifier l'état de connexion
 app.get('/api/isLoggedIn', (req, res) => {
